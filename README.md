@@ -16,8 +16,21 @@ DBO 在传统应用基础上大量使用数组，并且为开发方便提供统�
 ###使用方法
 ```php
 <?php
+//数据库设置
+$config['db']['dbtype']	 		= 'mysql';				//数据库类型php 5.4后请用mysqli
+$config['db']['dbhost'] 		= '127.0.0.1';			//服务器地址
+$config['db']['dbport'] 		= '3306';				//服务器端口
+$config['db']['dbname'] 		= 'foundphp';			//数据库名
+$config['db']['dbuser'] 		= 'root';				//账号
+$config['db']['dbpass'] 		= '';					//密码
+$config['db']['charset'] 		= 'utf8mb4';			//语言编码
+$config['db']['cache'] 			= 'data/cache/';		//缓存目录
+$config['db']['lang'] 			= 'zh';					//语言
+
 //引入dbo类并实例化
-$db    = load('class/database/dbo','FoundPHP_dbo',$config['db']);
+include 'database/dbo.php';
+$db    = FoundPHP_dbo($config['db']);
+
 //定义数据表
 $table['a']    = 'admin_user';//管理员表
 $table['b']    = 'admin_group';//管理员组表
