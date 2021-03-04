@@ -10,7 +10,7 @@
 *	payment: Free 免费
 *	This is not a freeware, use is subject to license terms.
 *	此软件为授权使用软件，请参考软件协议。
-*	http://www.FoundPHP.com/agreement
+*	http://www.foundphp.com/?m=agreement
 */
 
 
@@ -111,7 +111,7 @@ class DB_Error{
 					<hr color='#a8b7c6' width='36%' size='1' align='right'>
 					<table border='0' width='100%' style='border-collapse: collapse' cellpadding='0'>
 						<tr>
-							<td align='right'><font style='font-size: 9pt'>Copyright &copy; 2003-".date('Y',time())." by <a href='http://www.systn.com' target='_blank'><b><font color='#000000' style='text-decoration:none;'>SYSTN</font></b></a> All rights Reserved.</font></td>
+							<td align='right'><font style='font-size: 9pt'>Copyright &copy; 2005-".date('Y',time())." by <a href='http://www.systn.com' target='_blank'><b><font color='#000000' style='text-decoration:none;'>SYSTN</font></b></a> All rights Reserved.</font></td>
 						</tr>
 					</table>
 					</td>

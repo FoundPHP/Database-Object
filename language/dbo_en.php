@@ -1,17 +1,17 @@
 <?php
-/*	(C)2005-2019 FoundPHP Framework.
+/*	(C)2005-2021 FoundPHP Framework.
 *	官网：http://www.FoundPHP.com
 *	邮箱：master@FoundPHP.com
-*	作者：孟大川
 *	This is not a freeware, use is subject to license terms.
 *	此软件为授权使用软件，请参考软件协议。
-*	http://www.FoundPHP.com/agreement
+*	http://www.foundphp.com/?m=agreement
 *	English Language
 */
 
-$GLOBALS['FoundPHP_DB_Lang']	= array(
+$FoundPHP_DB_Lang	= array(
 		'not_support'		=> 'Sorry, the settings do not support databases.',
 		'mariadb_error'		=> 'mariadb Or no application mysqli.',
+		'odbc_driver'		=> 'SQL Server lacks ODBC driver<br>PHP Driver:http://go.microsoft.com/fwlink/?LinkId=163712<br>ODBC Driver for SQL Server:https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver15',
 		'ser_not_support1'	=> 'Your server does not support ',
 		'ser_not_support2'	=> 'data base.',
 		'not_drive1'		=> 'Can\'t find ',

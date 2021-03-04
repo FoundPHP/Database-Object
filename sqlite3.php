@@ -10,7 +10,7 @@
 *	payment: Free 免费
 *	This is not a freeware, use is subject to license terms.
 *	此软件为授权使用软件，请参考软件协议。
-*	http://www.FoundPHP.com/agreement
+*	http://www.foundphp.com/?m=agreement
 */
 
 Class Dirver_sqlite3{
@@ -27,13 +27,13 @@ Class Dirver_sqlite3{
 	function query($query,$limit='') {
 		//检测如果有限制数据集则处理
 		if($limit>0){
-			$query = $query.' LIMIT '.$limit;
+			$query	= $query.' LIMIT '.$limit;
 		}
 		//时间处理
 		if (@stristr($query, "now()") !== FALSE){
-			$query = preg_replace("/(.*)\'now\(\)\'(.*)/is","\\1now()\\2",$query);
+			$query	= preg_replace("/(.*)\'now\(\)\'(.*)/is","\\1now()\\2",$query);
 		}
-		
+		$query		= str_replace('`','',$query);
 		if(stristr($query,'select ')){
 			$db_query	= $this->LinkID->query($query);
 		}else{

@@ -10,7 +10,7 @@
 *	payment: Free 免费
 *	This is not a freeware, use is subject to license terms.
 *	此软件为授权使用软件，请参考软件协议。
-*	http://www.FoundPHP.com/agreement
+*	http://www.foundphp.com/?m=agreement
 */
 
 

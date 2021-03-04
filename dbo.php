@@ -4,173 +4,167 @@
 *	 weburl: http://www.FoundPHP.com
 * 	   mail: master@FoundPHP.com
 *	 author: 孟大川
-*	version: v3.201212
+*	version: v3.210204
 *	  start: 2006-05-24
-*	 update: 2021-01-16
+*	 update: 2021-02-04
 *	payment: Free 免费
 *	This is not a freeware, use is subject to license terms.
 *	此软件为授权使用软件，请参考软件协议。
-*	http://www.FoundPHP.com/agreement
+*	http://www.foundphp.com/?m=agreement
 */
-
-//Chinese Language
-$GLOBALS['FoundPHP_DB_Lang']	= array(
-		'not_support'		=> '抱歉，不支持您设置的数据库。',
-		'mariadb_error'		=> 'mariadb 或没有开启mysqli。',
-		'ser_not_support1'	=> '您的服务器不支持 ',
-		'ser_not_support2'	=> '数据库。',
-		'not_drive1'		=> '无法载入 ',
-		'not_drive2'		=> '数据库驱动。',
-		'connect_success'	=> '数据库连接成功',
-		'connect_die'		=> '数据库连接失败',
-		'connect_pwssword'	=> '连接密码错误',
-		'connect_check'		=> '请检查数据库设置。',
-		'db_insert'			=> ' 插入id： ',
-		'db_close'			=> ' 数据库关闭。',
-		'page_total1'		=> '共有',
-		'page_total2'		=> '条',
-		'front_5'			=> '前5页',
-		'next_5'			=> '后5页',
-		'first_page'		=> '第一页',
-		'last_page'			=> '最后一页',
-		'debug_title'		=> '调试平台',
-		'debug_db'			=> '数据库',
-		'debug_server'		=> '技术支持',
-		'debug_support'		=> '数据库',
-		'debug_dbname'		=> '库名',
-		'debug_user'		=> '帐号',
-		'debug_code'		=> '编码',
-		'debug_total'		=> '数据查询',
-		'debug_run'			=> '执行语句：',
-		'debug_num'			=> '条',
-		'debug_time'		=> '运行时间: ',
-	);
-
 
 //驱动处理
 class FoundPHP_dbo{
 	var $dbtype		= '';
 	var $sql_list	= '';
 	var $sql_num	= 0;
-	var	$lang		= '';
 	var $error		= 0;		//1表示禁止报错
 	var	$cache_dir	= './';
+	var $lang		= array(
+			'not_support'		=> '抱歉，不支持您设置的数据库。',
+			'mariadb_error'		=> 'mariadb 或没有开启mysqli。',
+			'odbc_driver'		=> 'SQL Server 缺少ODBC驱动<br>PHP 驱动:http://go.microsoft.com/fwlink/?LinkId=163712<br>ODBC驱动:https://docs.microsoft.com/zh-cn/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver15',
+			'ser_not_support1'	=> '您的服务器不支持 ',
+			'ser_not_support2'	=> '数据库。',
+			'not_drive1'		=> '无法载入 ',
+			'not_drive2'		=> '数据库驱动。',
+			'connect_success'	=> '数据库连接成功',
+			'connect_die'		=> '数据库连接失败',
+			'connect_pwssword'	=> '连接密码错误',
+			'connect_check'		=> '请检查数据库设置。',
+			'db_insert'			=> ' 插入id： ',
+			'db_close'			=> ' 数据库关闭。',
+			'page_total1'		=> '共有',
+			'page_total2'		=> '条',
+			'front_5'			=> '前5页',
+			'next_5'			=> '后5页',
+			'first_page'		=> '第一页',
+			'last_page'			=> '最后一页',
+			'debug_title'		=> '调试平台',
+			'debug_db'			=> '数据库',
+			'debug_server'		=> '技术支持',
+			'debug_support'		=> '数据库',
+			'debug_dbname'		=> '库名',
+			'debug_user'		=> '帐号',
+			'debug_code'		=> '编码',
+			'debug_total'		=> '数据查询',
+			'debug_run'			=> '执行语句：',
+			'debug_num'			=> '条',
+			'debug_time'		=> '运行时间: ',
+		);
 	/**
 	*  处理数据库载入单元
 	*/
 	function __construct($set=array()){
 		//debug 文件目录
-		$this->debug_file = @$set['sqllog'];
-		
+		$this->debug_file	= @$set['sqllog'];
 		//当前数据库类型
-		$this->dbtype = $set['dbtype'] = strtolower($set['dbtype']);
-		
+		$this->dbtype		= strtolower($set['dbtype']);
 		//载入语言包
 		if (isset($set['lang'])){
-			$dblang	= dirname(__FILE__).'/language/dbo_'.$set['lang'].'.php';
+			$dblang			= dirname(__FILE__).'/language/dbo_'.$set['lang'].'.php';
 			if (is_file($dblang)){
 				include_once($dblang);
+				$this->lang	= $FoundPHP_DB_Lang;
 			}
 		}
-		$this->lang	= $GLOBALS['FoundPHP_DB_Lang'];
-		
-		if ($set['cache']){
-			$this->cache_dir	= $set['cache'];
-		}
-		//过低的版本只能够使用mysql
-		if (floatval(PHP_VERSION)<=5.3){
-			$this->dbtype 		= $set['dbtype']	= 'mysql';
+		if (!empty($set['cache'])){
+			$this->cache_dir= $set['cache'];
 		}
 		//服务器检测
-		if($set['dbtype']=='mysqli'){
-			$this->db_name	= 'MYSQLi';
-			$func_name		= $set['dbtype'].'_connect';
-		}elseif($set['dbtype']=='mysql') {
-			$this->db_name	= 'MYSQL';
-			$func_name 		= $set['dbtype'].'_connect';
-		}elseif($set['dbtype']=='mariadb') {
-			$this->db_name	= 'MariaDB';
-			$func_name 		= 'mysqli_connect';
-		}elseif(stristr($set['dbtype'], 'sqlsrv') !== FALSE) {
-			$this->db_name	= 'SQL Server';
-			$func_name		= $set['dbtype'].'_connect';
-		}elseif(stristr($set['dbtype'], 'sqlite3') !== FALSE) {
-			$this->db_name	= 'SQLite3';
-			$func_name		= $set['dbtype'];
-		}elseif(stristr($set['dbtype'], 'sqlite') !== FALSE) {
-			$this->db_name	= 'SQLite';
-			$func_name		= $set['dbtype'].'_open';
-		}elseif(stristr($set['dbtype'], 'pgsql') !== FALSE) {
-			$this->db_name	= 'PostgreSQL';
-			$func_name		= 'pg_connect';
-		}elseif(stristr($set['dbtype'], 'odbc') !== FALSE) {
-			$this->db_name	= 'ODBC';
-			$func_name		= $set['dbtype'].'_pconnect';
-		}elseif($set['dbtype']=='redis') {
-			$this->db_name	= 'Redis';
-			$func_name		= 'Redis';
-			if (class_exists('Redis')==false){
-				$error		= $this->lang['not_support'].'['.$func_name.']';
-				function_exists('found_shutdown')?found_shutdown($error):die('FoundPHP Error:'.$error);
-			}
-		}elseif($set['dbtype']=='memcached') {
-			$this->db_name	= 'Memcached';
-			$func_name		= 'Memcached';
-
-		}else{
-			$error		= $this->lang['not_support'];
-			function_exists('found_shutdown')?found_shutdown($error):die('FoundPHP Error:'.$error);
-		}
-		if (!in_array($this->db_name,array('SQLite3','Redis','Memcached'))){
-			if (!function_exists($func_name)){
-				if ($set['dbtype']=='mariadb'){
-					$set['dbtype'] = $this->lang['mariadb_error'];
+		switch($this->dbtype){
+			case'mysql':
+			case'mysqli':
+				$this->db_name	= 'MYSQL';
+				if ($this->dbtype=='mysql' && !function_exists($this->dbtype)){
+					$this->dbtype .= 'i';
 				}
-				$error	= $this->lang['ser_not_support1'].$set['dbtype'].$this->lang['ser_not_support2'];
-				function_exists('found_shutdown')?found_shutdown($error):die($error);
+				//过低的版本只能够使用mysql
+				if (floatval(PHP_VERSION)<=5.3){
+				$this->dbtype	= $this->dbtype	= 'mysql';
+				}
+				$func_name 		= $this->dbtype.'_connect';
+			break;
+			case'mariadb':
+				$this->db_name	= 'MariaDB';
+				$func_name 		= 'mysqli_connect';
+			break;
+			case'sqlsrv':
+				$this->db_name	= 'SQL Server';
+				$func_name		= $this->dbtype.'_connect';
+			break;
+			case'sqlite':
+				$this->db_name	= 'SQLite3';
+				$this->dbtype	= 'sqlite3';
+				$func_name		= $this->db_name;
+			break;
+			case'pgsql':
+				$this->db_name	= 'PostgreSQL';
+				$func_name		= 'pg_connect';
+			break;
+			case'redis':
+				$func_name		= $this->db_name	= 'Redis';
+				if (class_exists('Redis')==false){
+					$error		= $this->lang['not_support'].'['.$func_name.']';
+					function_exists('foundphp_error')?foundphp_error($error):die('FoundPHP Error:'.$error);
+				}
+			break;
+			case'memcached':
+				$func_name		= $this->db_name	= 'Memcached';
+			break;
+			default:
+				$error		= $this->lang['not_support'];
+				function_exists('foundphp_error')?foundphp_error($error):die('FoundPHP Error:'.$error);
+		}
+		if (!in_array($this->dbtype,array('sqlite','sqlite3','redis','memcached'))){
+			if (!function_exists($func_name)){
+				if ($this->dbtype=='mariadb'){
+					$this->dbtype = $this->lang['mariadb_error'];
+				}
+				$error	= $this->lang['ser_not_support1'].$this->dbtype.$this->lang['ser_not_support2'];
+				function_exists('foundphp_error')?foundphp_error($error):die($error);
 			}
 		}
 		
 		//引入驱动
-		if(!is_file(dirname(__FILE__)."/".$set['dbtype'].".php")){
-			$error		= $this->lang['not_drive1'].$set['dbtype'].$this->lang['not_drive2'];
-			function_exists('found_shutdown')?found_shutdown($error):die($error);
+		if(!is_file(dirname(__FILE__)."/".$this->dbtype.".php")){
+			$error		= $this->lang['not_drive1'].$this->dbtype.$this->lang['not_drive2'];
+			function_exists('foundphp_error')?foundphp_error($error):die($error);
 		}
-		
-		include_once dirname(__FILE__)."/".$set['dbtype'].".php";
-		
+		include_once dirname(__FILE__)."/".$this->dbtype.".php";
 		
 		//声明驱动单元
-		$Foundclass		= "Dirver_".$set['dbtype'];
-		$this->DB		= new $Foundclass;
+		$FoundPHPclass	= "Dirver_".$this->dbtype;
+		$this->DB		= new $FoundPHPclass;
 		$dblink			= $this->DB->DBLink($set);
-		
 		@$this->dbhost	= $set['dbhost'];
 		@$this->dbport	= $set['dbport'];
 		@$this->dbname	= $set['dbname'];
 		@$this->dbuser	= $set['dbuser'];
 		@$this->charset	= $set['charset'];
-		
-		@$dbname		= (trim($set['dbname'])=='')?'':' DB:'.$set['dbname'];
-		@$dbuser		= (trim($set['dbuser'])=='')?'':' USER:'.$set['dbuser'];
-		
+		$error			= $this->db_name.' '.$this->lang['connect_die'].' (SERVER:'.$set['dbhost'].((trim($set['dbuser'])=='')?'':' USER:'.$set['dbuser']).((trim($set['dbname'])=='')?'':' DB:'.$set['dbname']).') '.$this->lang['connect_check'];
 		switch($dblink){
+			case 4://http://go.microsoft.com/fwlink/?LinkId=163712
+				$error	= $set['dbhost'].' '.$this->lang['odbc_driver'];
+				$this->log_write("\n".$error,'#008000');
+				function_exists('foundphp_error')?foundphp_error($error):die($error);
+				exit;
+			break;
 			case 3:
 				$error	= $set['dbhost'].' '.$this->lang['connect_pwssword'];
 				$this->log_write("\n".$error,'#008000');
-				function_exists('found_shutdown')?found_shutdown($error):die($error);
+				function_exists('foundphp_error')?foundphp_error($error):die($error);
 			case 2:
-				$error	= $this->db_name.' '.$this->lang['connect_die'].' (SERVER:'.$set['dbhost'].$dbuser.$dbname.') '.$this->lang['connect_check'];
 				$this->log_write("\n".$error,'#008000');
 				if ($set['install']){
 					return $error;
 				}else{
-					function_exists('found_shutdown')?found_shutdown($error):die($error);
+					function_exists('foundphp_error')?foundphp_error($error):die($error);
 				}
 			break;
 			default:
 				//连接成功写入记录
-				$this->log_write("\n".$this->db_name.' '.$this->lang['connect_success'].' (SERVER:'.$set['dbhost'].$dbuser.$dbname.')','#008000');
+				$this->log_write("\n".$error,'#008000');
 		}
 		//运行时间
 		if (isset($GLOBALS['tpl'])){
@@ -213,8 +207,8 @@ class FoundPHP_dbo{
 			$this->sql_list	.= $db_query['sql'].'&nbsp;&nbsp;<font>'.date('Y-m-d H:i:s ').'<font color="#808000">'.$runtime."</font><br>";
 			
 			//连接关闭提示
-			if (!$query && stristr($sql, 'INSERT') === FALSE && $this->error==0){$this->error($sql);}
-			if(!$query && $this->error==0){$this->error($sql);}
+			if (!$query && stristr($sql, 'INSERT') === FALSE && $this->error==0){$this->error($db_query['sql']);}
+			if(!$query && $this->error==0){$this->error($db_query['sql']);}
 			$this->sql_num++;
 			return $query;
 		}
@@ -411,7 +405,7 @@ class FoundPHP_dbo{
 					$sqls	= $sql;
 				}
 				//对关联语句的判断
-				if (stristr($sql, 'join') === FALSE){
+				if (stristr($sql, ' join ') === FALSE){
 					if(stristr($sql, 'where') !== FALSE){
 						$new_sql= preg_replace("/SELECT.+FROM \s*(.+)order\s*by.+/is","SELECT COUNT(*) AS cnt FROM \\1",$sql);
 						$new_sql= preg_replace("/SELECT.+FROM \s*(.+)group\s*by.+/is","SELECT COUNT(*) AS cnt FROM \\1",$new_sql);
@@ -443,44 +437,62 @@ class FoundPHP_dbo{
 					}
 				}else{
 					$new_sql= preg_replace("/(SELECT.+FROM\s*[a-zA-Z0-9_\.\[\]]+)order\s*by.+/is","\\1",$sql);
-					$Alls = $this->num_rows($this->query( $new_sql ));
+					$Alls = $this->num_rows($this->query($new_sql ));
 				}
 			}else{
 				//统计数据总数
 				switch($this->dbtype){
 					case'sqlsrv':
-						//计算总行数(无关联查询)
-						$counts	= $this->fetch_array($this->query("SELECT rows  FROM sysindexes WHERE id = object_id('".trim(preg_replace("/SELECT.+FROM\s*([A-Za-z0-9_\.\[\]]{1,50})/","\\1",$sql))."') AND indid in (0,1)"));
-						$Alls	= $counts['rows'];						
+						//计算总行数
+						$counts	= $this->num_rows($this->query($sql,-1));
+						$Alls	= $counts;
 					break;
 				}
 			}
 		}else{
-			$Alls = $maxs;
+			$Alls	= $maxs;
 		}
 		//处理分了几页
-		$MaxPages	= (int)ceil($Alls/$limit);
-		$QuerySeek	= (($page > $MaxPages)? $MaxPages-1: $page-1)*$limit;
-		$QuerySeek	= ($QuerySeek<=0)?0:$QuerySeek;
+		$max_page	= (int)ceil($Alls/$limit);
+		$seek		= (($page > $max_page)? $max_page-1: $page-1)*$limit;
+		$seek		= ($seek<=0)?0:$seek;
 		
 		switch($this->dbtype){
 			case'sqlsrv':
-				$query	= $sql." order by id offset ".$QuerySeek." rows fetch next ".$limit." rows only;";
+				if ($this->DB->version(1)>=2012){
+					$query_sql		= $sql.(stristr($sql,'order by ')?'':' order by id')." offset ".$seek." rows fetch next ".$limit." rows only;";
+				}else{
+					$seek_start	= ($page>1)?($seek+1):$seek;
+					//关联查询
+					if (stristr($sql,' join ')){
+						$sql		= str_ireplace('order by ','ORDER BY ',$sql);
+						$sql		= str_ireplace(' from ',' FROM ',$sql);
+						$sql_ex		= explode('ORDER BY ',$sql);//
+						$sql		= str_replace(' FROM ',',ROW_NUMBER() OVER (ORDER BY '.$sql_ex[1].') AS FPNum FROM ',$sql_ex[0]);
+						$query_sql	= 'SELECT * FROM ('.$sql.') FoundPHP WHERE FoundPHP.FPNum BETWEEN '.$seek_start.' and '.($limit);
+					}else{
+						$sql		= str_ireplace('order by ','ORDER BY ',$sql);
+						$sql		= str_ireplace(' from ',' FROM ',$sql);
+						$sql_ex		= explode('ORDER BY ',$sql);//
+						$sql		= str_replace(' FROM ',',ROW_NUMBER() OVER (ORDER BY '.$sql_ex[1].') AS FPNum FROM ',$sql_ex[0]);
+						$query_sql	= 'SELECT * FROM ('.$sql.') FoundPHP WHERE FoundPHP.FPNum BETWEEN '.$seek_start.' and '.($limit+$seek);
+					}
+				}
 			break;
 			case'pgsql':
-				$query	= "$sql LIMIT $limit OFFSET ".$QuerySeek;
+				$query_sql	= "$sql LIMIT $limit OFFSET ".$seek;
 			break;
 			default:
-				$query	= "$sql LIMIT ".$QuerySeek.",$limit";
+				$query_sql	= "$sql LIMIT ".$seek.",$limit";
 		}
 		
-		$show['query']	= $this->query($query);			//执行语句
+		$show['query']	= $this->query($query_sql);			//执行语句
 		
 		$show['info']	= array(
 		"limit"		=> intval($limit),				//每页的分页数
 		"nowlimit" 	=> intval(count($show)),		//列出当前的信息数
-		"nowpage"	=> intval(($page > $MaxPages)? $MaxPages:$page),
-		"pages"		=> intval($MaxPages),			//分了几页
+		"nowpage"	=> intval(($page > $max_page)? $max_page:$page),
+		"pages"		=> intval($max_page),			//分了几页
 		"nums"		=> intval($Alls),				//当前查询中最大信息数
 		);
 		return $show;
@@ -542,8 +554,12 @@ class FoundPHP_dbo{
 		include_once dirname(__FILE__).'/error.php';
 			//错误类别细节分析
 			switch($this->dbtype){
+				case'sqlite3':
+					$error		= $this->DB->LinkID->lastErrorCode();
+					$error_msg	= $this->DB->LinkID->lastErrorMsg();
+				break;
 				case'mysql':
-					$error			= mysql_errno($this->DB->LinkID);
+					$error		= mysql_errno($this->DB->LinkID);
 					$error_msg	= (mysql_error()=='')?'N/A':mysql_error($this->DB->LinkID);
 				break;
 				case'mysqli':
@@ -553,14 +569,13 @@ class FoundPHP_dbo{
 					$error_msg	= ($dblink->error=='')?'N/A':$dblink->error;
 					$states		= $dblink->stat;
 				break;
-				case'odbc':
-					$error		= odbc_error();
-					$error_msg	= (odbc_errormsg()=='')?'N/A':odbc_errormsg();
+				case'pgsql':
+					$error_msg	= (pg_last_error($this->DB->LinkID)=='')?'N/A':pg_last_error($this->DB->LinkID);
 				break;
 				case'sqlsrv':
 					$error_info	= sqlsrv_errors();
-					$error 	= $error_info['0']['code'];
-					$error_msg	= $error_info['0'][ 'message']?iconv('gbk','utf-8',$error_info['0'][ 'message']):'N/A';
+					$error 		= $error_info['0']['code'];
+					$error_msg	= $error_info['0'][ 'message']?$error_info['0'][ 'message']:'N/A';
 				break;
 				default:
 					$error		= 5178;		//未知语句错误
@@ -775,7 +790,6 @@ class FoundPHP_dbo{
 	function table($name=''){
 		switch(strtolower($GLOBALS['config']['db']['dbtype'])){
 			//SQL Server
-			case'mssql':
 			case'sqlsrv':
 				return $GLOBALS['config']['db']['pre'].$name;
 			break;
@@ -832,7 +846,7 @@ class FoundPHP_dbo{
 			$pages = pages($info['info']);
 	*/
 	function pages($info,$set=array()) {
-		global $_SERVER,$target,$keys,$page_adds,$config;
+		global $_SERVER,$target,$keys,$page_adds,$config,$db;
 		//信息接收处理
 		$num		= $info['nums'];
 		$perpage	= $info['limit'];
@@ -894,12 +908,12 @@ class FoundPHP_dbo{
 				$mpurl1 .= '?';
 			}
 			
-			$show_num	= $num>0?'<li><a href="#" onclick="return false;">'.$lang['page_total1'].number_format($num,0).$lang['page_total2'].'</a></li>':'';
+			$show_num	= $num>0?'<li><a href="#" onclick="return false;">'.$db->lang['page_total1'].number_format($num,0).$db->lang['page_total2'].'</a></li>':'';
 			$multipage .= '<nav class="text-center pagenav"><ul class="pagination">'.$show_num;
 			if(($curr_page-5)<=1){$pt= 1;}else{$pt=$curr_page-5;}
 			$multipage .= "<li><a ".($set['js']?'onclick="'.$set['js'].'(\''.sys_link($mpurl1.'1'.$mpurl2).'\');return false;"':"href='".sys_link($mpurl1.'1'.$mpurl2)."'")."><<</a></li>\n";
 			if ($curr_page>1){
-				$multipage .= "<li><a ".($set['js']?'onclick="'.$set['js'].'(\''.$mpurl1.$pt.$mpurl2.'\');return false;"':"href=\"$mpurl1$pt$mpurl2\"")." title=\"".$lang['front_5']."\" alt=\"".$lang['front_5']."\"><</a></li>\n";
+				$multipage .= "<li><a ".($set['js']?'onclick="'.$set['js'].'(\''.$mpurl1.$pt.$mpurl2.'\');return false;"':"href=\"$mpurl1$pt$mpurl2\"")." title=\"".$db->lang['front_5']."\" alt=\"".$db->lang['front_5']."\"><</a></li>\n";
 			}
 			for($i = $from; $i <= $to; $i++) {
 				if($i != $curr_page) {
@@ -910,11 +924,11 @@ class FoundPHP_dbo{
 			}
 			
 			if(($curr_page+5)>=$pages){$pd= $pages;}else{$pd=$curr_page+5;}
-			$multipage .= "<li><a ".($set['js']?'onclick="'.$set['js'].'(\''.sys_link($mpurl1.$pd.$mpurl2).'\');return false;"':"href=\"".sys_link($mpurl1.$pd.$mpurl2)."\"")." title=\"".$lang['next_5']."\" alt=\"".$lang['next_5']."\">></a></li>";
+			$multipage .= "<li><a ".($set['js']?'onclick="'.$set['js'].'(\''.sys_link($mpurl1.$pd.$mpurl2).'\');return false;"':"href=\"".sys_link($mpurl1.$pd.$mpurl2)."\"")." title=\"".$db->lang['next_5']."\" alt=\"".$db->lang['next_5']."\">></a></li>";
 			$multipage .= "<li><a ".($set['js']?'onclick="'.$set['js'].'(\''.sys_link($mpurl1.$pages.$mpurl2).'\');return false;"':"href='".sys_link($mpurl1.$pages.$mpurl2)."'").">>></a></li></ul>\n";
 		}else{
 			if (@$set['show']!=1 && $num){
-				$multipage .= '<nav class="text-center pagenav"><ul class="pagination"><li><a href="#" onclick="return false;">'.$lang['page_total1'].$num.$lang['page_total2'].'</a></li></ul></nav>';
+				$multipage .= '<nav class="text-center pagenav"><ul class="pagination"><li><a href="#" onclick="return false;">'.$db->lang['page_total1'].$num.$db->lang['page_total2'].'</a></li></ul></nav>';
 			}
 		}
 		//检测是否需要连接控制
