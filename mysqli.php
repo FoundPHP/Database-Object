@@ -108,10 +108,12 @@ Class Dirver_mysqli{
 		// print_R($query);exit;
 		$this->query($query);
 	}
+	
 	//创建数据库
 	function create_db($dbname){
 		$this->query("CREATE DATABASE ".$dbname);
 	}
+	
 	//列出数据库
 	function show_db(){
 		$query 	 = $this->query("SHOW DATABASES ");
@@ -120,6 +122,7 @@ Class Dirver_mysqli{
 		}
 		return $result;
 	}
+	
 	//列出数据表字段
 	function show_field($table){
 		$query = $this->query("SHOW  FULL FIELDS FROM `$table`");
@@ -134,6 +137,7 @@ Class Dirver_mysqli{
 		}
 		return $result;
 	}
+	
 	//列出数据库表
 	function show_table(){
 		$query =  $this->query("SHOW TABLE STATUS");
@@ -149,7 +153,6 @@ Class Dirver_mysqli{
 		}
 		return $result;
 	}
-	
 	
 	//关闭当前数据库连接
 	function close(){

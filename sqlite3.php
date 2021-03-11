@@ -58,15 +58,16 @@ Class Dirver_sqlite3{
 		return false;
 	}
 	
-	
 	//返回最后一次使用 INSERT 指令的 ID
 	function insert_id(){
 		return $this->LinkID->lastInsertRowID();
 	}
+	
 	//创建数据库
 	function create_db($dbname){
 		$this->LinkID->query("CREATE DATABASE ".$dbname);
 	}
+	
 	//创建数据库表
 	function create_table($set=array(),$ary=array()){
 		//数组符合要求
@@ -105,10 +106,12 @@ Class Dirver_sqlite3{
 		$query 	.= ");";
 		$this->LinkID->query($query);
 	}
+	
 	//列出数据库 sqlite 不支持
 	function show_db(){
 		return array('');
 	}
+	
 	//列出数据表字段
 	function show_field($table){
 		$query 		= $this->LinkID->query("PRAGMA table_info([$table])");
@@ -142,6 +145,7 @@ Class Dirver_sqlite3{
 		}
 		return $result;
 	}
+	
 	//关闭当前数据库连接
 	function close(){
 		return $this->LinkID->close();

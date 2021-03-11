@@ -60,6 +60,7 @@ Class Dirver_mysql{
 	function insert_id(){
 		return @mysql_insert_id($this->LinkID);
 	}
+	
 	//创建数据库表
 	function create_table($set=array(),$ary=array()){
 		//数组符合要求
@@ -106,10 +107,12 @@ Class Dirver_mysql{
 		$query 	.= ")ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='".$set['comment']."';";//='管理员组' AUTO_INCREMENT=57 
 		$this->query($query);
 	}
+	
 	//创建数据库
 	function create_db($dbname){
 		$this->query("CREATE DATABASE ".$dbname);
 	}
+	
 	//列出数据库
 	function show_db(){
 		$query 	 = $this->query("SHOW DATABASES ");
@@ -118,6 +121,7 @@ Class Dirver_mysql{
 		}
 		return $result;
 	}
+	
 	//列出数据表字段
 	function show_field($table){
 		$query = $this->query("SHOW  FULL FIELDS FROM `$table`");
@@ -132,6 +136,7 @@ Class Dirver_mysql{
 		}
 		return $result;
 	}
+	
 	//列出数据库表
 	function show_table(){
 		$query =  $this->query("SHOW TABLE STATUS");
@@ -147,6 +152,7 @@ Class Dirver_mysql{
 		}
 		return $result;
 	}
+	
 	//关闭当前数据库连接
 	function close(){
 		return @mysql_close($this->LinkID);
