@@ -37,6 +37,7 @@ Class Dirver_mysqli{
 		if (@stristr($query, "now()") !== FALSE){
 			$query = preg_replace("/(.*)\'now\(\)\'(.*)/is","\\1now()\\2",$query);
 		}
+		// var_dump(mysqli_query($this->LinkID,$query));
 		return array('query'=>mysqli_query($this->LinkID,$query),'sql'=>$query);
 	}
 	
@@ -97,15 +98,14 @@ Class Dirver_mysqli{
 					
 					$sql_key[] = $v['key_index']." KEY (`$v[field]`)";
 				}
-				
 				$sql_ary[]	= $sql;
 			}
 		}
 		$query 	= "CREATE TABLE IF NOT EXISTS `".$set['table']."` (";
-		$query	.= implode(',',$sql_ary).",";
-		$query	.= implode(' , ',$sql_key);
+		$query	.= implode(',',$sql_ary);
+		$query	.= !empty($sql_key)?",".implode(' , ',$sql_key):'';
 		$query 	.= ")ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='".$set['comment']."';";//='管理员组' AUTO_INCREMENT=57 
-		// print_R($query);exit;
+		
 		$this->query($query);
 	}
 	

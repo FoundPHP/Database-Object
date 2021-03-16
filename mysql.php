@@ -102,8 +102,8 @@ Class Dirver_mysql{
 			}
 		}
 		$query 	= "CREATE TABLE IF NOT EXISTS `".$set['table']."` (";
-		$query	.= implode(',',$sql_ary).",";
-		$query	.= implode(' , ',$sql_key);
+		$query	.= implode(',',$sql_ary);
+		$query	.= !empty($sql_key)?",".implode(' , ',$sql_key):'';
 		$query 	.= ")ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='".$set['comment']."';";//='管理员组' AUTO_INCREMENT=57 
 		$this->query($query);
 	}
