@@ -4,9 +4,9 @@
 *	 weburl: http://www.FoundPHP.com
 * 	   mail: master@FoundPHP.com
 *	 author: 孟大川
-*	version: v3.210311
+*	version: v3.210406
 *	  start: 2006-05-24
-*	 update: 2021-03-11
+*	 update: 2021-04-06
 *	payment: Free 免费
 *	This is not a freeware, use is subject to license terms.
 *	此软件为授权使用软件，请参考软件协议。
@@ -76,14 +76,8 @@ class FoundPHP_dbo{
 			case'mysql':
 			case'mysqli':
 				$this->db_name	= 'MYSQL';
-				
-				if (function_exists('mysqli')){
-					$this->dbtype .= 'i';
-					$func_name 		= $this->dbtype;
-				}else{
-					$this->dbtype	= 'mysql';
-					$func_name 		= $this->dbtype.'_connect';
-				}
+				$this->dbtype	= function_exists('mysqli_connect')?'mysqli':'mysql';
+				$func_name 		= $this->dbtype.'_connect';
 			break;
 			case'mariadb':
 				$this->db_name	= 'MariaDB';
@@ -555,12 +549,13 @@ class FoundPHP_dbo{
 		<td style="font-size: 13px;" bgcolor="#EAF4EA">'.$this->lang['debug_db'].':<b> '.$this->db_name.' '.$this->version().'</b></td>
 		<td style="font-size: 13px;" bgcolor="#EAF4EA">'.$this->lang['debug_server'].':<b> '.$this->dbhost.'</b></td>
 		<td style="font-size: 13px;" bgcolor="#EAF4EA">'.$this->lang['debug_support'].':<b> <a href="http://DB.FoundPHP.com" target="_blank">DB.FoundPHP.com</a></b></td>
-		</tr><tr>
-		<td style="font-size: 13px;" bgcolor="#EAF4EA">'.$this->lang['debug_dbname'].':<b> '.$this->dbname.'</b></td>
+		</tr>';
+		if (!empty($this->dbname) && !empty($this->dbuser)){
+		echo '<tr><td style="font-size: 13px;" bgcolor="#EAF4EA">'.$this->lang['debug_dbname'].':<b> '.$this->dbname.'</b></td>
 		<td style="font-size: 13px;" bgcolor="#EAF4EA">'.$this->lang['debug_user'].':<b> '.$this->dbuser.'</b></td>
-		<td style="font-size: 13px;" bgcolor="#EAF4EA">'.$this->lang['debug_code'].':<b> '.$this->charset.'</b></td>
-		</tr>
-		<tr bgcolor="#fff">
+		<td style="font-size: 13px;" bgcolor="#EAF4EA">'.$this->lang['debug_code'].':<b> '.$this->charset.'</b></td></tr>';
+		}
+		echo '<tr bgcolor="#fff">
 			<td colspan="5" align="left" style="color:#475054"><font style="font-size: 14px;"><b>'.$this->lang['debug_total'].'</b></font>（'.$this->lang['debug_run'].$this->sql_num.$this->lang['debug_num'].'）</td>
 		</tr>
 		<tr colspan="5"><td bgcolor="#FFFFFF" colspan="5" style="font-size: 13px;padding:5px;">'.str_replace('<br>','<br>'.$this->lang['debug_time'],$sql_list).'</td></tr></table><br>';
@@ -945,6 +940,7 @@ class FoundPHP_dbo{
 			}else {
 				$mpurl1 .= '?';
 			}
+			if (empty($set['js'])){$set['js'] = '';}
 			
 			$show_num	= $num>0?'<li><a href="#" onclick="return false;">'.$db->lang['page_total1'].number_format($num,0).$db->lang['page_total2'].'</a></li>':'';
 			$multipage .= '<nav class="text-center pagenav"><ul class="pagination">'.$show_num;
